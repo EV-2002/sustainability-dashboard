@@ -86,13 +86,8 @@ year_range = st.sidebar.slider(
     value=(1995, 2020)
 )
 
-map_year = st.sidebar.slider(
-    "Year for World Map",
-    min_value=1995, max_value=2020, value=2020
-)
-
-ranking_year = st.sidebar.selectbox(
-    "Year for Rankings",
+selected_year = st.sidebar.selectbox(
+    "Select Year (applies to all charts)",
     options=sorted(all_years, reverse=True)
 )
 
@@ -101,13 +96,6 @@ pie_country = st.sidebar.selectbox(
     options=all_countries,
     index=all_countries.index("United Kingdom") if "United Kingdom" in all_countries else 0
 )
-
-pie_year = st.sidebar.selectbox(
-    "Year (Capital Breakdown Pie)",
-    options=sorted(all_years, reverse=True),
-    key="pie_year"
-)
-
 category_filter = st.sidebar.selectbox(
     "Capital Category (Category Trend)",
     options=all_categories,
