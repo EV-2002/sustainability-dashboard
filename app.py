@@ -37,7 +37,6 @@ st.markdown("""
 def load_data():
     df = pd.read_csv("Data/Renewable Natural Capital.csv")
 
-    # Total renewable capital per capita
     total = df[
         (df["COMP_BREAKDOWN_1_LABEL"] == "Aggregation: per capita") &
         (df["COMP_BREAKDOWN_2_LABEL"] == "Renewable capital: total")
@@ -45,7 +44,6 @@ def load_data():
     total.columns = ["Country", "Year", "Capital_USD"]
     total["Year"] = total["Year"].astype(int)
 
-    # Breakdown by capital type
     breakdown = df[
         (df["COMP_BREAKDOWN_1_LABEL"] == "Aggregation: per capita") &
         (df["COMP_BREAKDOWN_2_LABEL"] != "Renewable capital: total")
@@ -54,17 +52,9 @@ def load_data():
     breakdown["Category"] = breakdown["Category"].str.replace("Renewable capital: ", "", regex=False)
     breakdown["Year"] = breakdown["Year"].astype(int)
 
-    # Total (not per capita) for aggregate comparison
-    total_agg = df[
-        (df["COMP_BREAKDOWN_1_LABEL"] == "Aggregation: total") &
-        (df["COMP_BREAKDOWN_2_LABEL"] == "Renewable capital: total")
-    ][["REF_AREA_LABEL", "TIME_PERIOD", "OBS_VALUE"]].dropna()
-    total_agg.columns = ["Country", "Year", "Total_Capital"]
-    total_agg["Year"] = total_agg["Year"].astype(int)
+    return total, breakdown
 
-    return total, breakdown, total_agg
-
-total, breakdown, total_agg = load_data()
+total, breakdown = load_data()
 
 all_countries = sorted(total["Country"].unique())
 all_years = sorted(total["Year"].unique())
@@ -81,13 +71,13 @@ selected_countries = st.sidebar.multiselect(
 )
 
 year_range = st.sidebar.slider(
-    "Year Range",
+    "Year Range (Trend Charts)",
     min_value=1995, max_value=2020,
     value=(1995, 2020)
 )
 
 selected_year = st.sidebar.selectbox(
-    "Select Year (applies to all charts)",
+    "Select Year (Map, Rankings, Pie)",
     options=sorted(all_years, reverse=True)
 )
 
@@ -96,6 +86,7 @@ pie_country = st.sidebar.selectbox(
     options=all_countries,
     index=all_countries.index("United Kingdom") if "United Kingdom" in all_countries else 0
 )
+
 category_filter = st.sidebar.selectbox(
     "Capital Category (Category Trend)",
     options=all_categories,
@@ -133,9 +124,9 @@ st.markdown("---")
 
 # ── Chart 1: World Map ────────────────────────────────────────────────────────
 st.subheader("Global Distribution of Renewable Natural Capital")
-st.markdown(f"Showing renewable capital per capita (USD) for each country in **{map_year}**. Use the sidebar slider to change the year.")
+st.markdown(f"Showing renewable capital per capita (USD) for each country in **{selected_year}**.")
 
-map_data = total[total["Year"] == map_year]
+map_data = total[total["Year"] == selected_year]
 fig_map = px.choropleth(
     map_data,
     locations="Country",
@@ -143,7 +134,7 @@ fig_map = px.choropleth(
     color="Capital_USD",
     color_continuous_scale="Greens",
     labels={"Capital_USD": "USD per capita"},
-    title=f"Renewable Natural Capital per Capita — {map_year}"
+    title=f"Renewable Natural Capital per Capita — {selected_year}"
 )
 fig_map.update_layout(
     height=420,
@@ -189,8 +180,8 @@ st.subheader("Country Rankings and Capital Composition")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown(f"**Top 10 Countries by Renewable Capital ({ranking_year})**")
-    top10 = total[total["Year"] == ranking_year].nlargest(10, "Capital_USD")
+    st.markdown(f"**Top 10 Countries by Renewable Capital ({selected_year})**")
+    top10 = total[total["Year"] == selected_year].nlargest(10, "Capital_USD")
     fig_bar = px.bar(
         top10,
         x="Capital_USD", y="Country",
@@ -198,7 +189,7 @@ with col1:
         color="Capital_USD",
         color_continuous_scale="Greens",
         labels={"Capital_USD": "USD per capita", "Country": ""},
-        title=f"Top 10 Countries — {ranking_year}"
+        title=f"Top 10 Countries — {selected_year}"
     )
     fig_bar.update_layout(
         yaxis=dict(autorange="reversed"),
@@ -211,10 +202,10 @@ with col1:
     st.plotly_chart(fig_bar, use_container_width=True)
 
 with col2:
-    st.markdown(f"**Capital Type Breakdown — {pie_country} ({pie_year})**")
+    st.markdown(f"**Capital Type Breakdown — {pie_country} ({selected_year})**")
     pie_data = breakdown[
         (breakdown["Country"] == pie_country) &
-        (breakdown["Year"] == pie_year) &
+        (breakdown["Year"] == selected_year) &
         (breakdown["Value_USD"] > 0)
     ]
     if not pie_data.empty:
@@ -223,7 +214,7 @@ with col2:
             names="Category",
             values="Value_USD",
             color_discrete_sequence=px.colors.sequential.Greens,
-            title=f"{pie_country} — Capital Breakdown ({pie_year})"
+            title=f"{pie_country} — Capital Breakdown ({selected_year})"
         )
         fig_pie.update_traces(textposition="inside", textinfo="percent+label")
         fig_pie.update_layout(
@@ -272,9 +263,9 @@ st.markdown("---")
 
 # ── Chart 6: Bottom 10 ────────────────────────────────────────────────────────
 st.subheader("Countries with the Lowest Renewable Capital")
-st.markdown(f"Identifying the 10 countries with the least renewable natural capital per capita in **{ranking_year}**.")
+st.markdown(f"Identifying the 10 countries with the least renewable natural capital per capita in **{selected_year}**.")
 
-bottom10 = total[total["Year"] == ranking_year].nsmallest(10, "Capital_USD")
+bottom10 = total[total["Year"] == selected_year].nsmallest(10, "Capital_USD")
 fig_bottom = px.bar(
     bottom10,
     x="Capital_USD", y="Country",
@@ -282,7 +273,7 @@ fig_bottom = px.bar(
     color="Capital_USD",
     color_continuous_scale="Reds",
     labels={"Capital_USD": "USD per capita", "Country": ""},
-    title=f"Bottom 10 Countries by Renewable Capital ({ranking_year})"
+    title=f"Bottom 10 Countries by Renewable Capital ({selected_year})"
 )
 fig_bottom.update_layout(
     yaxis=dict(autorange="reversed"),
