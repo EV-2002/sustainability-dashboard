@@ -144,7 +144,7 @@ k4.metric("Global Avg (2020)", f"${global_avg_2020:,.0f}", f"+${global_avg_2020 
 st.markdown("---")
 
 # ── Chart 1: World Map ────────────────────────────────────────────────────────
-st.subheader("Chart 1 — Global Distribution of Renewable Natural Capital")
+st.subheader("Global Distribution of Renewable Natural Capital")
 st.markdown(f"Showing renewable capital per capita (USD) for each country in **{map_year}**. Use the sidebar slider to change the year.")
 
 map_data = total[total["Year"] == map_year]
@@ -168,7 +168,7 @@ st.plotly_chart(fig_map, use_container_width=True)
 st.markdown("---")
 
 # ── Chart 2: Line Chart ───────────────────────────────────────────────────────
-st.subheader("Chart 2 — Renewable Capital Trends Over Time")
+st.subheader("Renewable Capital Trends Over Time")
 st.markdown("Compare how selected countries changed in renewable natural capital per capita over the years.")
 
 if selected_countries:
@@ -197,7 +197,7 @@ else:
 st.markdown("---")
 
 # ── Chart 3 & 4 side by side ──────────────────────────────────────────────────
-st.subheader("Chart 3 & 4 — Country Rankings and Capital Composition")
+st.subheader("Country Rankings and Capital Composition")
 col1, col2 = st.columns(2)
 
 with col1:
@@ -250,7 +250,7 @@ with col2:
 st.markdown("---")
 
 # ── Chart 5: Category Trend ───────────────────────────────────────────────────
-st.subheader("Chart 5 — Specific Capital Category Trend by Country")
+st.subheader("Specific Capital Category Trend by Country")
 st.markdown(f"Track how a specific type of renewable capital changed over time. Currently showing: **{category_filter}**")
 
 if selected_countries:
@@ -283,7 +283,7 @@ else:
 st.markdown("---")
 
 # ── Chart 6: Bottom 10 ────────────────────────────────────────────────────────
-st.subheader("Chart 6 — Countries with the Lowest Renewable Capital")
+st.subheader("Countries with the Lowest Renewable Capital")
 st.markdown(f"Identifying the 10 countries with the least renewable natural capital per capita in **{ranking_year}**.")
 
 bottom10 = total[total["Year"] == ranking_year].nsmallest(10, "Capital_USD")
@@ -309,7 +309,7 @@ st.plotly_chart(fig_bottom, use_container_width=True)
 st.markdown("---")
 
 # ── Chart 7: Raw Data Explorer ────────────────────────────────────────────────
-st.subheader("Chart 7 — Raw Data Explorer")
+st.subheader("Raw Data Explorer")
 st.markdown("Browse the underlying data used in this dashboard.")
 
 view_type = st.radio(
